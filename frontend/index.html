@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-hospital mr-2"></i>
+                Hospital Management System
+            </h1>
+            <div class="hidden md:flex space-x-4">
+                <button onclick="showSection('dashboard')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                </button>
+                <button onclick="showSection('patients')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-user-injured mr-1"></i>Patients
+                </button>
+                <button onclick="showSection('doctors')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-user-md mr-1"></i>Doctors
+                </button>
+                <button onclick="showSection('appointments')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-calendar-check mr-1"></i>Appointments
+                </button>
+            </div>
+            <button class="md:hidden" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden mt-4 space-y-2">
+            <button onclick="showSection('dashboard')" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-700 transition">
+                <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+            </button>
+            <button onclick="showSection('patients')" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-700 transition">
+                <i class="fas fa-user-injured mr-1"></i>Patients
+            </button>
+            <button onclick="showSection('doctors')" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-700 transition">
+                <i class="fas fa-user-md mr-1"></i>Doctors
+            </button>
+            <button onclick="showSection('appointments')" class="block w-full text-left px-4 py-2 rounded hover:bg-blue-700 transition">
+                <i class="fas fa-calendar-check mr-1"></i>Appointments
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg flex items-center">
+                <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mr-3"></i>
+                <span class="text-gray-700">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Dashboard</h2>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-clock mr-1"></i>
+                    Last updated: <span id="lastUpdated"></span>
+                </div>
+            </div>
+
+            <!-- Main Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 transform hover:scale-105 transition-transform">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-700">Total Patients</h3>
+                            <p class="text-3xl font-bold text-blue-600" id="totalPatients">0</p>
+                            <p class="text-sm text-gray-500 mt-1">+<span id="newPatientsThisWeek">0</span> this week</p>
+                        </div>
+                        <i class="fas fa-user-injured text-4xl text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500 transform hover:scale-105 transition-transform">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-700">Total Doctors</h3>
+                            <p class="text-3xl font-bold text-green-600" id="totalDoctors">0</p>
+                            <p class="text-sm text-gray-500 mt-1">Across <span id="specializations">0</span> specializations</p>
+                        </div>
+                        <i class="fas fa-user-md text-4xl text-green-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500 transform hover:scale-105 transition-transform">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-700">Today's Appointments</h3>
+                            <p class="text-3xl font-bold text-yellow-600" id="todayAppointments">0</p>
+                            <p class="text-sm text-gray-500 mt-1"><span id="completedToday">0</span> completed</p>
+                        </div>
+                        <i class="fas fa-calendar-day text-4xl text-yellow-500"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500 transform hover:scale-105 transition-transform">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-700">Total Appointments</h3>
+                            <p class="text-3xl font-bold text-red-600" id="totalAppointments">0</p>
+                            <p class="text-sm text-gray-500 mt-1">All time</p>
+                        </div>
+                        <i class="fas fa-calendar-alt text-4xl text-red-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Distribution -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-chart-pie mr-2 text-blue-500"></i>
+                        Appointment Status Distribution
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-500 rounded mr-3"></div>
+                                <span class="text-gray-700">Completed</span>
+                            </div>
+                            <span class="font-semibold text-green-600" id="completedCount">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-500 rounded mr-3"></div>
+                                <span class="text-gray-700">Scheduled</span>
+                            </div>
+                            <span class="font-semibold text-yellow-600" id="scheduledCount">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-500 rounded mr-3"></div>
+                                <span class="text-gray-700">Cancelled</span>
+                            </div>
+                            <span class="font-semibold text-red-600" id="cancelledCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-bolt mr-2 text-purple-500"></i>
+                        Quick Actions
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="openModal('patientModal')" class="w-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-3 rounded-lg transition">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Add New Patient
+                        </button>
+                        <button onclick="openModal('doctorModal')" class="w-full flex items-center justify-center bg-green-50 hover:bg-green-100 text-green-700 p-3 rounded-lg transition">
+                            <i class="fas fa-user-md mr-2"></i>
+                            Add New Doctor
+                        </button>
+                        <button onclick="openModal('appointmentModal')" class="w-full flex items-center justify-center bg-purple-50 hover:bg-purple-100 text-purple-700 p-3 rounded-lg transition">
+                            <i class="fas fa-calendar-plus mr-2"></i>
+                            Schedule Appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Section -->
+        <div id="patients" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Patient Management</h2>
+                <button onclick="openModal('patientModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Add Patient
+                </button>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <input type="text" id="patientSearch" placeholder="Search patients..." class="w-full md:w-1/3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Patients Table -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Patients will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors Section -->
+        <div id="doctors" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Doctor Management</h2>
+                <button onclick="openModal('doctorModal')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Add Doctor
+                </button>
+            </div>
+
+            <!-- Doctors Table -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctorsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Doctors will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Section -->
+        <div id="appointments" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Appointment Management</h2>
+                <button onclick="openModal('appointmentModal')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Schedule Appointment
+                </button>
+            </div>
+
+            <!-- Appointments Table -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Appointments will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Patient Modal -->
+    <div id="patientModal" class="modal hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="patientModalTitle">Add New Patient</h3>
+                <form id="patientForm">
+                    <input type="hidden" id="patientId">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                        <input type="text" id="patientName" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Age</label>
+                        <input type="number" id="patientAge" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+                        <input type="tel" id="patientPhone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="patientEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Address</label>
+                        <textarea id="patientAddress" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal('patientModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Patient</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Modal -->
+    <div id="doctorModal" class="modal hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="doctorModalTitle">Add New Doctor</h3>
+                <form id="doctorForm">
+                    <input type="hidden" id="doctorId">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                        <input type="text" id="doctorName" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Specialization</label>
+                        <input type="text" id="doctorSpecialization" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+                        <input type="tel" id="doctorPhone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="doctorEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal('doctorModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Save Doctor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Modal -->
+    <div id="appointmentModal" class="modal hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="appointmentModalTitle">Schedule New Appointment</h3>
+                <form id="appointmentForm">
+                    <input type="hidden" id="appointmentId">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Patient</label>
+                        <select id="appointmentPatient" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Doctor</label>
+                        <select id="appointmentDoctor" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                            <option value="">Select Doctor</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Date</label>
+                        <input type="date" id="appointmentDate" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Time</label>
+                        <input type="time" id="appointmentTime" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                        <select id="appointmentStatus" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal('appointmentModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Save Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
