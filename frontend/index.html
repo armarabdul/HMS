@@ -41,6 +41,9 @@
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
         .stat-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-left: 4px solid;
@@ -102,24 +105,24 @@
                 </div>
                 
                 <div class="hidden md:flex space-x-2">
-                    <button onclick="showSection('dashboard')" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
+                    <button data-section="dashboard" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center active">
                         <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
                     </button>
-                    <button onclick="showSection('patients')" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
+                    <button data-section="patients" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
                         <i class="fas fa-user-injured mr-2"></i>Patients
                     </button>
-                    <button onclick="showSection('doctors')" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
+                    <button data-section="doctors" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
                         <i class="fas fa-user-md mr-2"></i>Doctors
                     </button>
-                    <button onclick="showSection('appointments')" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
+                    <button data-section="appointments" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
                         <i class="fas fa-calendar-check mr-2"></i>Appointments
                     </button>
-                    <button onclick="showSection('reports')" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
+                    <button data-section="reports" class="nav-item px-6 py-3 rounded-lg font-medium flex items-center">
                         <i class="fas fa-chart-bar mr-2"></i>Reports
                     </button>
                 </div>
 
-                <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                <button id="mobileMenuToggle" class="md:hidden text-white">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
             </div>
@@ -127,19 +130,19 @@
             <!-- Mobile Menu -->
             <div id="mobileMenu" class="hidden md:hidden pb-4">
                 <div class="space-y-2">
-                    <button onclick="showSection('dashboard')" class="block w-full text-left px-4 py-3 rounded-lg nav-item">
+                    <button data-section="dashboard" class="nav-item-mobile block w-full text-left px-4 py-3 rounded-lg">
                         <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
                     </button>
-                    <button onclick="showSection('patients')" class="block w-full text-left px-4 py-3 rounded-lg nav-item">
+                    <button data-section="patients" class="nav-item-mobile block w-full text-left px-4 py-3 rounded-lg">
                         <i class="fas fa-user-injured mr-2"></i>Patients
                     </button>
-                    <button onclick="showSection('doctors')" class="block w-full text-left px-4 py-3 rounded-lg nav-item">
+                    <button data-section="doctors" class="nav-item-mobile block w-full text-left px-4 py-3 rounded-lg">
                         <i class="fas fa-user-md mr-2"></i>Doctors
                     </button>
-                    <button onclick="showSection('appointments')" class="block w-full text-left px-4 py-3 rounded-lg nav-item">
+                    <button data-section="appointments" class="nav-item-mobile block w-full text-left px-4 py-3 rounded-lg">
                         <i class="fas fa-calendar-check mr-2"></i>Appointments
                     </button>
-                    <button onclick="showSection('reports')" class="block w-full text-left px-4 py-3 rounded-lg nav-item">
+                    <button data-section="reports" class="nav-item-mobile block w-full text-left px-4 py-3 rounded-lg">
                         <i class="fas fa-chart-bar mr-2"></i>Reports
                     </button>
                 </div>
@@ -187,7 +190,7 @@
 
             <!-- Quick Actions -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <button onclick="openModal('patientModal')" class="card-hover bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
+                <button data-modal="patientModal" class="quick-action card-hover bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
                     <div class="flex items-center justify-between">
                         <div class="text-left">
                             <h3 class="text-xl font-bold mb-2">Add Patient</h3>
@@ -197,7 +200,7 @@
                     </div>
                 </button>
                 
-                <button onclick="openModal('doctorModal')" class="card-hover bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
+                <button data-modal="doctorModal" class="quick-action card-hover bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
                     <div class="flex items-center justify-between">
                         <div class="text-left">
                             <h3 class="text-xl font-bold mb-2">Add Doctor</h3>
@@ -207,7 +210,7 @@
                     </div>
                 </button>
                 
-                <button onclick="openModal('appointmentModal')" class="card-hover bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
+                <button data-modal="appointmentModal" class="quick-action card-hover bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
                     <div class="flex items-center justify-between">
                         <div class="text-left">
                             <h3 class="text-xl font-bold mb-2">Book Appointment</h3>
@@ -356,7 +359,7 @@
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Patient Management</h2>
                         <p class="text-gray-600">Manage patient records and information</p>
                     </div>
-                    <button onclick="openModal('patientModal')" class="mt-4 md:mt-0 bg-primary text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center shadow-lg">
+                    <button data-modal="patientModal" class="add-patient-btn mt-4 md:mt-0 bg-primary text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center shadow-lg">
                         <i class="fas fa-plus mr-2"></i>Add New Patient
                     </button>
                 </div>
@@ -400,7 +403,7 @@
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Doctor Management</h2>
                         <p class="text-gray-600">Manage medical staff and specialists</p>
                     </div>
-                    <button onclick="openModal('doctorModal')" class="mt-4 md:mt-0 bg-success text-white px-6 py-3 rounded-xl hover:bg-green-700 transition flex items-center shadow-lg">
+                    <button data-modal="doctorModal" class="add-doctor-btn mt-4 md:mt-0 bg-success text-white px-6 py-3 rounded-xl hover:bg-green-700 transition flex items-center shadow-lg">
                         <i class="fas fa-plus mr-2"></i>Add New Doctor
                     </button>
                 </div>
@@ -435,7 +438,7 @@
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Appointment Management</h2>
                         <p class="text-gray-600">Schedule and manage patient appointments</p>
                     </div>
-                    <button onclick="openModal('appointmentModal')" class="mt-4 md:mt-0 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition flex items-center shadow-lg">
+                    <button data-modal="appointmentModal" class="add-appointment-btn mt-4 md:mt-0 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition flex items-center shadow-lg">
                         <i class="fas fa-plus mr-2"></i>Schedule Appointment
                     </button>
                 </div>
@@ -472,19 +475,19 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
+                    <div class="report-card bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
                         <i class="fas fa-users text-3xl mb-4"></i>
                         <h3 class="text-xl font-bold mb-2">Patient Report</h3>
                         <p class="text-blue-100">Comprehensive patient statistics</p>
                     </div>
                     
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
+                    <div class="report-card bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
                         <i class="fas fa-user-md text-3xl mb-4"></i>
                         <h3 class="text-xl font-bold mb-2">Doctor Report</h3>
                         <p class="text-green-100">Doctor performance metrics</p>
                     </div>
                     
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
+                    <div class="report-card bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl card-hover cursor-pointer">
                         <i class="fas fa-calendar-alt text-3xl mb-4"></i>
                         <h3 class="text-xl font-bold mb-2">Appointment Report</h3>
                         <p class="text-purple-100">Appointment analytics</p>
@@ -494,7 +497,7 @@
         </div>
     </div>
 
-    <!-- Modals (same structure but with improved styling) -->
+    <!-- Modals -->
     <!-- Patient Modal -->
     <div id="patientModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full z-50">
         <div class="relative top-10 mx-auto p-8 border-0 w-11/12 md:w-2/3 lg:w-1/2 xl:w-1/3 shadow-2xl rounded-2xl bg-white">
@@ -527,7 +530,7 @@
                     <textarea id="patientAddress" class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="3"></textarea>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" onclick="closeModal('patientModal')" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition">
+                    <button type="button" class="modal-close px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition" data-modal="patientModal">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-blue-700 transition shadow-lg">
@@ -566,7 +569,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" onclick="closeModal('doctorModal')" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition">
+                    <button type="button" class="modal-close px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition" data-modal="doctorModal">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-success text-white rounded-xl hover:bg-green-700 transition shadow-lg">
@@ -617,7 +620,7 @@
                     </select>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" onclick="closeModal('appointmentModal')" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition">
+                    <button type="button" class="modal-close px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition" data-modal="appointmentModal">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition shadow-lg">
@@ -639,638 +642,6 @@
         </div>
     </div>
 
-    <script>
-        // API Configuration
-        const API_BASE_URL = window.location.origin + '/api';
-
-        // Global state
-        let patients = [];
-        let doctors = [];
-        let appointments = [];
-
-        // Update current date/time
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('currentDateTime').textContent = now.toLocaleString();
-            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
-        }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
-
-        // Utility Functions
-        const showLoading = () => document.getElementById('loadingIndicator').classList.remove('hidden');
-        const hideLoading = () => document.getElementById('loadingIndicator').classList.add('hidden');
-
-        const showNotification = (title, message, type = 'info') => {
-            const notification = document.getElementById('notification');
-            const icon = document.getElementById('notificationIcon');
-            const titleEl = document.getElementById('notificationTitle');
-            const messageEl = document.getElementById('notificationMessage');
-            
-            // Set content
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-            
-            // Set styling based on type
-            notification.className = 'fixed top-4 right-4 p-4 rounded-xl shadow-lg z-50 max-w-sm';
-            if (type === 'success') {
-                notification.classList.add('bg-green-500', 'text-white');
-                icon.className = 'fas fa-check-circle text-2xl mr-3';
-            } else if (type === 'error') {
-                notification.classList.add('bg-red-500', 'text-white');
-                icon.className = 'fas fa-exclamation-circle text-2xl mr-3';
-            } else {
-                notification.classList.add('bg-blue-500', 'text-white');
-                icon.className = 'fas fa-info-circle text-2xl mr-3';
-            }
-            
-            notification.classList.remove('hidden');
-            setTimeout(() => notification.classList.add('hidden'), 4000);
-        };
-
-        // API Functions
-        const apiRequest = async (endpoint, options = {}) => {
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    },
-                    ...options
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || data.message || 'API request failed');
-                }
-                
-                return data;
-            } catch (error) {
-                console.error('API Error:', error);
-                throw error;
-            }
-        };
-
-        // Patient API Functions
-        const patientAPI = {
-            getAll: () => apiRequest('/patients'),
-            getById: (id) => apiRequest(`/patients/${id}`),
-            create: (data) => apiRequest('/patients', { method: 'POST', body: JSON.stringify(data) }),
-            update: (id, data) => apiRequest(`/patients/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-            delete: (id) => apiRequest(`/patients/${id}`, { method: 'DELETE' }),
-            getStats: () => apiRequest('/patients/stats'),
-            search: (query) => apiRequest(`/patients?search=${encodeURIComponent(query)}`)
-        };
-
-        // Doctor API Functions
-        const doctorAPI = {
-            getAll: () => apiRequest('/doctors'),
-            getById: (id) => apiRequest(`/doctors/${id}`),
-            create: (data) => apiRequest('/doctors', { method: 'POST', body: JSON.stringify(data) }),
-            update: (id, data) => apiRequest(`/doctors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-            delete: (id) => apiRequest(`/doctors/${id}`, { method: 'DELETE' }),
-            getStats: () => apiRequest('/doctors/stats')
-        };
-
-        // Appointment API Functions
-        const appointmentAPI = {
-            getAll: () => apiRequest('/appointments'),
-            getById: (id) => apiRequest(`/appointments/${id}`),
-            create: (data) => apiRequest('/appointments', { method: 'POST', body: JSON.stringify(data) }),
-            update: (id, data) => apiRequest(`/appointments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-            delete: (id) => apiRequest(`/appointments/${id}`, { method: 'DELETE' }),
-            getStats: () => apiRequest('/appointments/stats'),
-            getToday: () => apiRequest('/appointments/today')
-        };
-
-        // Navigation Functions
-        function showSection(sectionName) {
-            // Update active navigation
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('bg-white', 'bg-opacity-20');
-            });
-            event.target.classList.add('bg-white', 'bg-opacity-20');
-            
-            // Show selected section
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => section.classList.add('hidden'));
-            document.getElementById(sectionName).classList.remove('hidden');
-            
-            // Load data when showing specific sections
-            switch(sectionName) {
-                case 'dashboard':
-                    updateDashboardStats();
-                    break;
-                case 'patients':
-                    loadPatients();
-                    break;
-                case 'doctors':
-                    loadDoctors();
-                    break;
-                case 'appointments':
-                    loadAppointments();
-                    break;
-            }
-        }
-
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
-        }
-
-        // Modal Functions
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-            if (modalId === 'appointmentModal') {
-                populateAppointmentSelects();
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-            // Reset forms
-            const form = document.getElementById(modalId.replace('Modal', 'Form'));
-            if (form) form.reset();
-            
-            // Reset modal titles
-            const titleElement = document.getElementById(modalId.replace('Modal', 'ModalTitle'));
-            if (titleElement) {
-                if (modalId === 'patientModal') titleElement.textContent = 'Add New Patient';
-                else if (modalId === 'doctorModal') titleElement.textContent = 'Add New Doctor';
-                else if (modalId === 'appointmentModal') titleElement.textContent = 'Schedule New Appointment';
-            }
-        }
-
-        // Patient Functions
-        async function loadPatients() {
-            try {
-                showLoading();
-                const response = await patientAPI.getAll();
-                patients = response.data;
-                displayPatients(patients);
-            } catch (error) {
-                showNotification('Error', 'Failed to load patients: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function displayPatients(patientsToShow) {
-            const tbody = document.getElementById('patientsTableBody');
-            tbody.innerHTML = '';
-            
-            patientsToShow.forEach(patient => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm font-medium">#${patient.id}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="bg-primary bg-opacity-10 w-10 h-10 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user text-primary"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-semibold text-gray-900">${patient.name}</div>
-                                <div class="text-sm text-gray-500">${patient.email}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${patient.phone || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">${patient.age} years</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="editPatient(${patient.id})" class="text-primary hover:text-blue-700 mr-4 p-2 rounded-lg hover:bg-blue-50 transition" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deletePatient(${patient.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        async function savePatient(patientData) {
-            try {
-                showLoading();
-                if (patientData.id) {
-                    await patientAPI.update(patientData.id, patientData);
-                    showNotification('Success', 'Patient updated successfully', 'success');
-                } else {
-                    await patientAPI.create(patientData);
-                    showNotification('Success', 'Patient created successfully', 'success');
-                }
-                loadPatients();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to save patient: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function editPatient(id) {
-            try {
-                const response = await patientAPI.getById(id);
-                const patient = response.data;
-                
-                document.getElementById('patientModalTitle').textContent = 'Edit Patient';
-                document.getElementById('patientId').value = patient.id;
-                document.getElementById('patientName').value = patient.name;
-                document.getElementById('patientAge').value = patient.age;
-                document.getElementById('patientPhone').value = patient.phone || '';
-                document.getElementById('patientEmail').value = patient.email;
-                document.getElementById('patientAddress').value = patient.address || '';
-                openModal('patientModal');
-            } catch (error) {
-                showNotification('Error', 'Failed to load patient: ' + error.message, 'error');
-            }
-        }
-
-        async function deletePatient(id) {
-            if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) return;
-            
-            try {
-                showLoading();
-                await patientAPI.delete(id);
-                showNotification('Success', 'Patient deleted successfully', 'success');
-                loadPatients();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to delete patient: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Doctor Functions
-        async function loadDoctors() {
-            try {
-                showLoading();
-                const response = await doctorAPI.getAll();
-                doctors = response.data;
-                displayDoctors(doctors);
-            } catch (error) {
-                showNotification('Error', 'Failed to load doctors: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function displayDoctors(doctorsToShow) {
-            const tbody = document.getElementById('doctorsTableBody');
-            tbody.innerHTML = '';
-            
-            doctorsToShow.forEach(doctor => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="bg-success bg-opacity-10 text-success px-3 py-1 rounded-full text-sm font-medium">#${doctor.id}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="bg-success bg-opacity-10 w-10 h-10 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user-md text-success"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-semibold text-gray-900">Dr. ${doctor.name}</div>
-                                <div class="text-sm text-gray-500">${doctor.email}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${doctor.specialization}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.phone || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="editDoctor(${doctor.id})" class="text-success hover:text-green-700 mr-4 p-2 rounded-lg hover:bg-green-50 transition" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteDoctor(${doctor.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        async function saveDoctor(doctorData) {
-            try {
-                showLoading();
-                if (doctorData.id) {
-                    await doctorAPI.update(doctorData.id, doctorData);
-                    showNotification('Success', 'Doctor updated successfully', 'success');
-                } else {
-                    await doctorAPI.create(doctorData);
-                    showNotification('Success', 'Doctor created successfully', 'success');
-                }
-                loadDoctors();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to save doctor: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function editDoctor(id) {
-            try {
-                const response = await doctorAPI.getById(id);
-                const doctor = response.data;
-                
-                document.getElementById('doctorModalTitle').textContent = 'Edit Doctor';
-                document.getElementById('doctorId').value = doctor.id;
-                document.getElementById('doctorName').value = doctor.name;
-                document.getElementById('doctorSpecialization').value = doctor.specialization;
-                document.getElementById('doctorPhone').value = doctor.phone || '';
-                document.getElementById('doctorEmail').value = doctor.email;
-                openModal('doctorModal');
-            } catch (error) {
-                showNotification('Error', 'Failed to load doctor: ' + error.message, 'error');
-            }
-        }
-
-        async function deleteDoctor(id) {
-            if (!confirm('Are you sure you want to delete this doctor? This action cannot be undone.')) return;
-            
-            try {
-                showLoading();
-                await doctorAPI.delete(id);
-                showNotification('Success', 'Doctor deleted successfully', 'success');
-                loadDoctors();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to delete doctor: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Appointment Functions
-        async function loadAppointments() {
-            try {
-                showLoading();
-                const response = await appointmentAPI.getAll();
-                appointments = response.data;
-                displayAppointments(appointments);
-            } catch (error) {
-                showNotification('Error', 'Failed to load appointments: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function displayAppointments(appointmentsToShow) {
-            const tbody = document.getElementById('appointmentsTableBody');
-            tbody.innerHTML = '';
-            
-            appointmentsToShow.forEach(appointment => {
-                const statusColors = {
-                    'Scheduled': 'bg-yellow-100 text-yellow-800',
-                    'Completed': 'bg-green-100 text-green-800',
-                    'Cancelled': 'bg-red-100 text-red-800'
-                };
-                
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">#${appointment.id}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="bg-primary bg-opacity-10 w-8 h-8 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user text-primary text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900">${appointment.patient_name || 'Unknown'}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="bg-success bg-opacity-10 w-8 h-8 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user-md text-success text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900">${appointment.doctor_name || 'Unknown'}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">
-                            <div class="font-medium">${new Date(appointment.appointment_date).toLocaleDateString()}</div>
-                            <div class="text-gray-500">${appointment.appointment_time}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColors[appointment.status] || 'bg-gray-100 text-gray-800'}">
-                            ${appointment.status}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="editAppointment(${appointment.id})" class="text-purple-600 hover:text-purple-800 mr-4 p-2 rounded-lg hover:bg-purple-50 transition" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteAppointment(${appointment.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        async function saveAppointment(appointmentData) {
-            try {
-                showLoading();
-                if (appointmentData.id) {
-                    await appointmentAPI.update(appointmentData.id, appointmentData);
-                    showNotification('Success', 'Appointment updated successfully', 'success');
-                } else {
-                    await appointmentAPI.create(appointmentData);
-                    showNotification('Success', 'Appointment scheduled successfully', 'success');
-                }
-                loadAppointments();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to save appointment: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function editAppointment(id) {
-            try {
-                const response = await appointmentAPI.getById(id);
-                const appointment = response.data;
-                
-                document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment';
-                document.getElementById('appointmentId').value = appointment.id;
-                document.getElementById('appointmentPatient').value = appointment.patient_id;
-                document.getElementById('appointmentDoctor').value = appointment.doctor_id;
-                document.getElementById('appointmentDate').value = appointment.appointment_date;
-                document.getElementById('appointmentTime').value = appointment.appointment_time;
-                document.getElementById('appointmentStatus').value = appointment.status;
-                
-                await populateAppointmentSelects();
-                openModal('appointmentModal');
-            } catch (error) {
-                showNotification('Error', 'Failed to load appointment: ' + error.message, 'error');
-            }
-        }
-
-        async function deleteAppointment(id) {
-            if (!confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) return;
-            
-            try {
-                showLoading();
-                await appointmentAPI.delete(id);
-                showNotification('Success', 'Appointment deleted successfully', 'success');
-                loadAppointments();
-                updateDashboardStats();
-            } catch (error) {
-                showNotification('Error', 'Failed to delete appointment: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function populateAppointmentSelects() {
-            try {
-                const [patientsResponse, doctorsResponse] = await Promise.all([
-                    patientAPI.getAll(),
-                    doctorAPI.getAll()
-                ]);
-                
-                const patientSelect = document.getElementById('appointmentPatient');
-                const doctorSelect = document.getElementById('appointmentDoctor');
-                
-                // Clear existing options except first one
-                patientSelect.innerHTML = '<option value="">Select Patient</option>';
-                doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
-                
-                // Populate patients
-                patientsResponse.data.forEach(patient => {
-                    patientSelect.innerHTML += `<option value="${patient.id}">${patient.name} (${patient.email})</option>`;
-                });
-                
-                // Populate doctors
-                doctorsResponse.data.forEach(doctor => {
-                    doctorSelect.innerHTML += `<option value="${doctor.id}">Dr. ${doctor.name} - ${doctor.specialization}</option>`;
-                });
-            } catch (error) {
-                showNotification('Error', 'Failed to load patients and doctors: ' + error.message, 'error');
-            }
-        }
-
-        // Dashboard Functions
-        async function updateDashboardStats() {
-            try {
-                const [patientStats, doctorStats, appointmentStats] = await Promise.all([
-                    patientAPI.getStats().catch(() => ({ data: { total: 0, averageAge: 0, newThisWeek: 0 } })),
-                    doctorAPI.getStats().catch(() => ({ data: { total: 0, specializations: 0 } })),
-                    appointmentAPI.getStats().catch(() => ({ data: { total: 0, today: 0, completedToday: 0, statusDistribution: {} } }))
-                ]);
-                
-                // Update main stats
-                document.getElementById('totalPatients').textContent = patientStats.data.total;
-                document.getElementById('totalDoctors').textContent = doctorStats.data.total;
-                document.getElementById('totalAppointments').textContent = appointmentStats.data.total;
-                document.getElementById('specializations').textContent = doctorStats.data.specializations;
-                document.getElementById('todayAppointments').textContent = appointmentStats.data.today;
-                document.getElementById('completedToday').textContent = appointmentStats.data.completedToday;
-                document.getElementById('newPatientsThisWeek').textContent = patientStats.data.newThisWeek;
-                
-                // Update status distribution
-                const statusDist = appointmentStats.data.statusDistribution;
-                document.getElementById('completedCount').textContent = statusDist.Completed || 0;
-                document.getElementById('scheduledCount').textContent = statusDist.Scheduled || 0;
-                document.getElementById('cancelledCount').textContent = statusDist.Cancelled || 0;
-                
-            } catch (error) {
-                console.error('Failed to update dashboard stats:', error);
-            }
-        }
-
-        // Search Functions
-        async function searchPatients(query) {
-            if (!query.trim()) {
-                displayPatients(patients);
-                return;
-            }
-            
-            try {
-                const response = await patientAPI.search(query);
-                displayPatients(response.data);
-            } catch (error) {
-                showNotification('Error', 'Search failed: ' + error.message, 'error');
-            }
-        }
-
-        // Form Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Patient form
-            document.getElementById('patientForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const patientData = {
-                    id: document.getElementById('patientId').value || undefined,
-                    name: document.getElementById('patientName').value,
-                    age: parseInt(document.getElementById('patientAge').value),
-                    phone: document.getElementById('patientPhone').value,
-                    email: document.getElementById('patientEmail').value,
-                    address: document.getElementById('patientAddress').value
-                };
-                
-                savePatient(patientData);
-                closeModal('patientModal');
-            });
-
-            // Doctor form
-            document.getElementById('doctorForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const doctorData = {
-                    id: document.getElementById('doctorId').value || undefined,
-                    name: document.getElementById('doctorName').value,
-                    specialization: document.getElementById('doctorSpecialization').value,
-                    phone: document.getElementById('doctorPhone').value,
-                    email: document.getElementById('doctorEmail').value
-                };
-                
-                saveDoctor(doctorData);
-                closeModal('doctorModal');
-            });
-
-            // Appointment form
-            document.getElementById('appointmentForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const appointmentData = {
-                    id: document.getElementById('appointmentId').value || undefined,
-                    patient_id: parseInt(document.getElementById('appointmentPatient').value),
-                    doctor_id: parseInt(document.getElementById('appointmentDoctor').value),
-                    appointment_date: document.getElementById('appointmentDate').value,
-                    appointment_time: document.getElementById('appointmentTime').value,
-                    status: document.getElementById('appointmentStatus').value
-                };
-                
-                saveAppointment(appointmentData);
-                closeModal('appointmentModal');
-            });
-
-            // Search functionality
-            document.getElementById('patientSearch').addEventListener('input', function(e) {
-                const searchTerm = e.target.value;
-                if (searchTerm.length >= 2 || searchTerm.length === 0) {
-                    searchPatients(searchTerm);
-                }
-            });
-
-            // Initialize app
-            showSection('dashboard');
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

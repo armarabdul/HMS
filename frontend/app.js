@@ -1,5 +1,5 @@
-// Modern Hospital Management System - app.js
-// Enhanced version with better error handling and UI interactions
+// Secure Hospital Management System - app.js
+// Using proper event listeners instead of inline handlers
 
 // API Configuration
 const API_BASE_URL = window.location.origin + '/api';
@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    // Setup all event listeners
+    setupEventListeners();
+    
     // Update date/time immediately and then every second
     updateDateTime();
     setInterval(updateDateTime, 1000);
@@ -23,16 +26,196 @@ function initializeApp() {
     // Initialize default section
     showSection('dashboard');
     
-    // Setup form event listeners
-    setupFormListeners();
-    
-    // Setup search functionality
-    setupSearchListeners();
-    
     // Show welcome message
     setTimeout(() => {
         showNotification('Welcome', 'Unity Healthcare Management System is ready!', 'success');
     }, 1000);
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+    // Navigation event listeners
+    setupNavigationListeners();
+    
+    // Modal event listeners
+    setupModalListeners();
+    
+    // Form event listeners
+    setupFormListeners();
+    
+    // Search event listeners
+    setupSearchListeners();
+    
+    // Quick action listeners
+    setupQuickActionListeners();
+    
+    // Table action listeners will be setup when tables are populated
+}
+
+function setupNavigationListeners() {
+    // Desktop navigation
+    document.querySelectorAll('.nav-item[data-section]').forEach(button => {
+        button.addEventListener('click', function() {
+            const section = this.getAttribute('data-section');
+            showSection(section);
+            updateActiveNav(this);
+        });
+    });
+    
+    // Mobile navigation
+    document.querySelectorAll('.nav-item-mobile[data-section]').forEach(button => {
+        button.addEventListener('click', function() {
+            const section = this.getAttribute('data-section');
+            showSection(section);
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.add('hidden');
+        });
+    });
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+    }
+}
+
+function setupModalListeners() {
+    // Modal open buttons
+    document.querySelectorAll('[data-modal]').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal');
+            openModal(modalId);
+        });
+    });
+    
+    // Modal close buttons
+    document.querySelectorAll('.modal-close').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal');
+            closeModal(modalId);
+        });
+    });
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            const modalId = e.target.id;
+            closeModal(modalId);
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const openModals = document.querySelectorAll('.modal:not(.hidden)');
+            openModals.forEach(modal => {
+                closeModal(modal.id);
+            });
+        }
+    });
+}
+
+function setupFormListeners() {
+    // Patient form
+    const patientForm = document.getElementById('patientForm');
+    if (patientForm) {
+        patientForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const patientData = {
+                id: document.getElementById('patientId').value || undefined,
+                name: document.getElementById('patientName').value,
+                age: parseInt(document.getElementById('patientAge').value),
+                phone: document.getElementById('patientPhone').value,
+                email: document.getElementById('patientEmail').value,
+                address: document.getElementById('patientAddress').value
+            };
+            
+            savePatient(patientData);
+            closeModal('patientModal');
+        });
+    }
+
+    // Doctor form
+    const doctorForm = document.getElementById('doctorForm');
+    if (doctorForm) {
+        doctorForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const doctorData = {
+                id: document.getElementById('doctorId').value || undefined,
+                name: document.getElementById('doctorName').value,
+                specialization: document.getElementById('doctorSpecialization').value,
+                phone: document.getElementById('doctorPhone').value,
+                email: document.getElementById('doctorEmail').value
+            };
+            
+            saveDoctor(doctorData);
+            closeModal('doctorModal');
+        });
+    }
+
+    // Appointment form
+    const appointmentForm = document.getElementById('appointmentForm');
+    if (appointmentForm) {
+        appointmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const appointmentData = {
+                id: document.getElementById('appointmentId').value || undefined,
+                patient_id: parseInt(document.getElementById('appointmentPatient').value),
+                doctor_id: parseInt(document.getElementById('appointmentDoctor').value),
+                appointment_date: document.getElementById('appointmentDate').value,
+                appointment_time: document.getElementById('appointmentTime').value,
+                status: document.getElementById('appointmentStatus').value
+            };
+            
+            saveAppointment(appointmentData);
+            closeModal('appointmentModal');
+        });
+    }
+}
+
+function setupSearchListeners() {
+    // Patient search functionality
+    const patientSearch = document.getElementById('patientSearch');
+    if (patientSearch) {
+        patientSearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value;
+            if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                searchPatients(searchTerm);
+            }
+        });
+    }
+}
+
+function setupQuickActionListeners() {
+    // Quick action buttons
+    document.querySelectorAll('.quick-action[data-modal]').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal');
+            openModal(modalId);
+        });
+    });
+    
+    // Add buttons in sections
+    const addPatientBtn = document.querySelector('.add-patient-btn[data-modal]');
+    if (addPatientBtn) {
+        addPatientBtn.addEventListener('click', function() {
+            openModal('patientModal');
+        });
+    }
+    
+    const addDoctorBtn = document.querySelector('.add-doctor-btn[data-modal]');
+    if (addDoctorBtn) {
+        addDoctorBtn.addEventListener('click', function() {
+            openModal('doctorModal');
+        });
+    }
+    
+    const addAppointmentBtn = document.querySelector('.add-appointment-btn[data-modal]');
+    if (addAppointmentBtn) {
+        addAppointmentBtn.addEventListener('click', function() {
+            openModal('appointmentModal');
+        });
+    }
 }
 
 // Date/Time Functions
@@ -81,7 +264,6 @@ const showNotification = (title, message, type = 'info') => {
     const messageEl = document.getElementById('notificationMessage');
     
     if (!notification || !icon || !titleEl || !messageEl) {
-        // Fallback to console if notification elements don't exist
         console.log(`${type.toUpperCase()}: ${title} - ${message}`);
         return;
     }
@@ -135,7 +317,6 @@ const apiRequest = async (endpoint, options = {}) => {
     } catch (error) {
         console.error('API Error:', error);
         
-        // Provide user-friendly error messages
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
             throw new Error('Network error: Please check your connection and try again.');
         }
@@ -194,9 +375,6 @@ function showSection(sectionName) {
             return;
         }
         
-        // Update navigation active state
-        updateActiveNavigation(sectionName);
-        
         // Load data for the selected section
         loadSectionData(sectionName);
         
@@ -206,14 +384,16 @@ function showSection(sectionName) {
     }
 }
 
-function updateActiveNavigation(sectionName) {
-    // Remove active state from all nav items
+function updateActiveNav(activeButton) {
+    // Remove active class from all nav items
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('bg-white', 'bg-opacity-20');
+        item.classList.remove('active');
     });
     
-    // Add active state to current nav item (this is tricky without proper selectors)
-    // We'll skip this for now as it requires event handling
+    // Add active class to clicked item
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
 }
 
 function loadSectionData(sectionName) {
@@ -302,7 +482,6 @@ async function loadPatients() {
     } catch (error) {
         console.error('Failed to load patients:', error);
         showNotification('Error', 'Failed to load patients: ' + error.message, 'error');
-        // Show empty state
         displayPatients([]);
     } finally {
         hideLoading();
@@ -354,15 +533,36 @@ function displayPatients(patientsToShow) {
                 <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">${patient.age || 'N/A'} years</span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="editPatient(${patient.id})" class="text-blue-600 hover:text-blue-800 mr-4 p-2 rounded-lg hover:bg-blue-50 transition" title="Edit Patient">
+                <button class="edit-patient-btn text-blue-600 hover:text-blue-800 mr-4 p-2 rounded-lg hover:bg-blue-50 transition" title="Edit Patient" data-id="${patient.id}">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deletePatient(${patient.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Patient">
+                <button class="delete-patient-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Patient" data-id="${patient.id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         `;
         tbody.appendChild(row);
+    });
+    
+    // Setup action button listeners
+    setupPatientActionListeners();
+}
+
+function setupPatientActionListeners() {
+    // Edit patient buttons
+    document.querySelectorAll('.edit-patient-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const patientId = this.getAttribute('data-id');
+            editPatient(patientId);
+        });
+    });
+    
+    // Delete patient buttons
+    document.querySelectorAll('.delete-patient-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const patientId = this.getAttribute('data-id');
+            deletePatient(patientId);
+        });
     });
 }
 
@@ -370,7 +570,6 @@ async function savePatient(patientData) {
     try {
         showLoading();
         
-        // Validate required fields
         if (!patientData.name || !patientData.email || !patientData.age) {
             throw new Error('Please fill in all required fields');
         }
@@ -383,7 +582,6 @@ async function savePatient(patientData) {
             showNotification('Success', 'Patient created successfully', 'success');
         }
         
-        // Refresh data
         await loadPatients();
         await updateDashboardStats();
         
@@ -405,7 +603,6 @@ async function editPatient(id) {
             throw new Error('Patient not found');
         }
         
-        // Populate form
         document.getElementById('patientModalTitle').textContent = 'Edit Patient';
         document.getElementById('patientId').value = patient.id || '';
         document.getElementById('patientName').value = patient.name || '';
@@ -434,7 +631,6 @@ async function deletePatient(id) {
         await patientAPI.delete(id);
         showNotification('Success', 'Patient deleted successfully', 'success');
         
-        // Refresh data
         await loadPatients();
         await updateDashboardStats();
         
@@ -507,15 +703,33 @@ function displayDoctors(doctorsToShow) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.phone || 'N/A'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="editDoctor(${doctor.id})" class="text-green-600 hover:text-green-800 mr-4 p-2 rounded-lg hover:bg-green-50 transition" title="Edit Doctor">
+                <button class="edit-doctor-btn text-green-600 hover:text-green-800 mr-4 p-2 rounded-lg hover:bg-green-50 transition" title="Edit Doctor" data-id="${doctor.id}">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteDoctor(${doctor.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Doctor">
+                <button class="delete-doctor-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Doctor" data-id="${doctor.id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         `;
         tbody.appendChild(row);
+    });
+    
+    setupDoctorActionListeners();
+}
+
+function setupDoctorActionListeners() {
+    document.querySelectorAll('.edit-doctor-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const doctorId = this.getAttribute('data-id');
+            editDoctor(doctorId);
+        });
+    });
+    
+    document.querySelectorAll('.delete-doctor-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const doctorId = this.getAttribute('data-id');
+            deleteDoctor(doctorId);
+        });
     });
 }
 
@@ -523,7 +737,6 @@ async function saveDoctor(doctorData) {
     try {
         showLoading();
         
-        // Validate required fields
         if (!doctorData.name || !doctorData.email || !doctorData.specialization) {
             throw new Error('Please fill in all required fields');
         }
@@ -536,7 +749,6 @@ async function saveDoctor(doctorData) {
             showNotification('Success', 'Doctor created successfully', 'success');
         }
         
-        // Refresh data
         await loadDoctors();
         await updateDashboardStats();
         
@@ -558,7 +770,6 @@ async function editDoctor(id) {
             throw new Error('Doctor not found');
         }
         
-        // Populate form
         document.getElementById('doctorModalTitle').textContent = 'Edit Doctor';
         document.getElementById('doctorId').value = doctor.id || '';
         document.getElementById('doctorName').value = doctor.name || '';
@@ -586,7 +797,6 @@ async function deleteDoctor(id) {
         await doctorAPI.delete(id);
         showNotification('Success', 'Doctor deleted successfully', 'success');
         
-        // Refresh data
         await loadDoctors();
         await updateDashboardStats();
         
@@ -677,15 +887,33 @@ function displayAppointments(appointmentsToShow) {
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="editAppointment(${appointment.id})" class="text-purple-600 hover:text-purple-800 mr-4 p-2 rounded-lg hover:bg-purple-50 transition" title="Edit Appointment">
+                <button class="edit-appointment-btn text-purple-600 hover:text-purple-800 mr-4 p-2 rounded-lg hover:bg-purple-50 transition" title="Edit Appointment" data-id="${appointment.id}">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteAppointment(${appointment.id})" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Appointment">
+                <button class="delete-appointment-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Delete Appointment" data-id="${appointment.id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         `;
         tbody.appendChild(row);
+    });
+    
+    setupAppointmentActionListeners();
+}
+
+function setupAppointmentActionListeners() {
+    document.querySelectorAll('.edit-appointment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appointmentId = this.getAttribute('data-id');
+            editAppointment(appointmentId);
+        });
+    });
+    
+    document.querySelectorAll('.delete-appointment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appointmentId = this.getAttribute('data-id');
+            deleteAppointment(appointmentId);
+        });
     });
 }
 
@@ -720,7 +948,6 @@ async function saveAppointment(appointmentData) {
     try {
         showLoading();
         
-        // Validate required fields
         if (!appointmentData.patient_id || !appointmentData.doctor_id || !appointmentData.appointment_date || !appointmentData.appointment_time) {
             throw new Error('Please fill in all required fields');
         }
@@ -733,7 +960,6 @@ async function saveAppointment(appointmentData) {
             showNotification('Success', 'Appointment scheduled successfully', 'success');
         }
         
-        // Refresh data
         await loadAppointments();
         await updateDashboardStats();
         
@@ -755,7 +981,6 @@ async function editAppointment(id) {
             throw new Error('Appointment not found');
         }
         
-        // Populate form
         document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment';
         document.getElementById('appointmentId').value = appointment.id || '';
         document.getElementById('appointmentPatient').value = appointment.patient_id || '';
@@ -785,7 +1010,6 @@ async function deleteAppointment(id) {
         await appointmentAPI.delete(id);
         showNotification('Success', 'Appointment deleted successfully', 'success');
         
-        // Refresh data
         await loadAppointments();
         await updateDashboardStats();
         
@@ -812,11 +1036,9 @@ async function populateAppointmentSelects() {
             return;
         }
         
-        // Clear existing options except first one
         patientSelect.innerHTML = '<option value="">Select Patient</option>';
         doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
         
-        // Populate patients
         (patientsResponse.data || []).forEach(patient => {
             const option = document.createElement('option');
             option.value = patient.id;
@@ -824,7 +1046,6 @@ async function populateAppointmentSelects() {
             patientSelect.appendChild(option);
         });
         
-        // Populate doctors
         (doctorsResponse.data || []).forEach(doctor => {
             const option = document.createElement('option');
             option.value = doctor.id;
@@ -847,7 +1068,6 @@ async function updateDashboardStats() {
             appointmentAPI.getStats().catch(() => ({ data: { total: 0, today: 0, completedToday: 0, statusDistribution: {} } }))
         ]);
         
-        // Update main stats with null checks
         updateElementTextContent('totalPatients', patientStats.data?.total || 0);
         updateElementTextContent('totalDoctors', doctorStats.data?.total || 0);
         updateElementTextContent('totalAppointments', appointmentStats.data?.total || 0);
@@ -856,7 +1076,6 @@ async function updateDashboardStats() {
         updateElementTextContent('completedToday', appointmentStats.data?.completedToday || 0);
         updateElementTextContent('newPatientsThisWeek', patientStats.data?.newThisWeek || 0);
         
-        // Update status distribution
         const statusDist = appointmentStats.data?.statusDistribution || {};
         updateElementTextContent('completedCount', statusDist.Completed || 0);
         updateElementTextContent('scheduledCount', statusDist.Scheduled || 0);
@@ -889,107 +1108,3 @@ async function searchPatients(query) {
         showNotification('Error', 'Search failed: ' + error.message, 'error');
     }
 }
-
-// Form Setup Functions
-function setupFormListeners() {
-    // Patient form
-    const patientForm = document.getElementById('patientForm');
-    if (patientForm) {
-        patientForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const patientData = {
-                id: document.getElementById('patientId').value || undefined,
-                name: document.getElementById('patientName').value,
-                age: parseInt(document.getElementById('patientAge').value),
-                phone: document.getElementById('patientPhone').value,
-                email: document.getElementById('patientEmail').value,
-                address: document.getElementById('patientAddress').value
-            };
-            
-            savePatient(patientData);
-            closeModal('patientModal');
-        });
-    }
-
-    // Doctor form
-    const doctorForm = document.getElementById('doctorForm');
-    if (doctorForm) {
-        doctorForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const doctorData = {
-                id: document.getElementById('doctorId').value || undefined,
-                name: document.getElementById('doctorName').value,
-                specialization: document.getElementById('doctorSpecialization').value,
-                phone: document.getElementById('doctorPhone').value,
-                email: document.getElementById('doctorEmail').value
-            };
-            
-            saveDoctor(doctorData);
-            closeModal('doctorModal');
-        });
-    }
-
-    // Appointment form
-    const appointmentForm = document.getElementById('appointmentForm');
-    if (appointmentForm) {
-        appointmentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const appointmentData = {
-                id: document.getElementById('appointmentId').value || undefined,
-                patient_id: parseInt(document.getElementById('appointmentPatient').value),
-                doctor_id: parseInt(document.getElementById('appointmentDoctor').value),
-                appointment_date: document.getElementById('appointmentDate').value,
-                appointment_time: document.getElementById('appointmentTime').value,
-                status: document.getElementById('appointmentStatus').value
-            };
-            
-            saveAppointment(appointmentData);
-            closeModal('appointmentModal');
-        });
-    }
-}
-
-function setupSearchListeners() {
-    // Patient search functionality
-    const patientSearch = document.getElementById('patientSearch');
-    if (patientSearch) {
-        patientSearch.addEventListener('input', function(e) {
-            const searchTerm = e.target.value;
-            if (searchTerm.length >= 2 || searchTerm.length === 0) {
-                searchPatients(searchTerm);
-            }
-        });
-    }
-}
-
-// Handle modal closing with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        // Close any open modal
-        const modals = document.querySelectorAll('.modal:not(.hidden)');
-        modals.forEach(modal => {
-            const modalId = modal.id;
-            closeModal(modalId);
-        });
-    }
-});
-
-// Handle clicking outside modal to close
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        const modalId = e.target.id;
-        closeModal(modalId);
-    }
-});
-
-// Export functions for global access (since we're not using modules)
-window.showSection = showSection;
-window.toggleMobileMenu = toggleMobileMenu;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.editPatient = editPatient;
-window.deletePatient = deletePatient;
-window.editDoctor = editDoctor;
-window.deleteDoctor = deleteDoctor;
-window.editAppointment = editAppointment;
-window.deleteAppointment = deleteAppointment;
