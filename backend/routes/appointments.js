@@ -1,9 +1,15 @@
-// routes/appointments.js
+// routes/appointments.js - Fixed with proper parameter handling
 const express = require('express');
 const { body, validationResult, param } = require('express-validator');
 const Appointment = require('../models/Appointment');
 
 const router = express.Router();
+
+// Helper function to safely parse integers
+const safeParseInt = (value, defaultValue = 0) => {
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : Math.max(0, parsed);
+};
 
 const validateAppointment = [
   body('patient_id').isInt({ min: 1 }).withMessage('Patient ID must be a positive integer'),
@@ -25,8 +31,13 @@ const handleValidationErrors = (req, res, next) => {
 // GET /api/appointments
 router.get('/', async (req, res) => {
   try {
-    const { limit = 50, offset = 0 } = req.query;
-    const appointments = await Appointment.findAll(parseInt(limit), parseInt(offset));
+    // Safely parse query parameters
+    const limit = safeParseInt(req.query.limit, 50);
+    const offset = safeParseInt(req.query.offset, 0);
+    
+    console.log('Fetching appointments with params:', { limit, offset });
+    
+    const appointments = await Appointment.findAll(limit, offset);
     res.json({ success: true, data: appointments });
   } catch (error) {
     console.error('Error fetching appointments:', error);
@@ -59,7 +70,13 @@ router.get('/stats', async (req, res) => {
 // GET /api/appointments/:id
 router.get('/:id', async (req, res) => {
   try {
-    const appointment = await Appointment.findById(req.params.id);
+    const appointmentId = safeParseInt(req.params.id, 0);
+    
+    if (appointmentId <= 0) {
+      return res.status(400).json({ error: 'Invalid appointment ID' });
+    }
+    
+    const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ error: 'Appointment not found' });
     }
@@ -87,7 +104,13 @@ router.post('/', validateAppointment, handleValidationErrors, async (req, res) =
 // PUT /api/appointments/:id
 router.put('/:id', validateAppointment, handleValidationErrors, async (req, res) => {
   try {
-    const appointment = await Appointment.findById(req.params.id);
+    const appointmentId = safeParseInt(req.params.id, 0);
+    
+    if (appointmentId <= 0) {
+      return res.status(400).json({ error: 'Invalid appointment ID' });
+    }
+    
+    const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ error: 'Appointment not found' });
     }
@@ -105,7 +128,13 @@ router.put('/:id', validateAppointment, handleValidationErrors, async (req, res)
 // DELETE /api/appointments/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const appointment = await Appointment.findById(req.params.id);
+    const appointmentId = safeParseInt(req.params.id, 0);
+    
+    if (appointmentId <= 0) {
+      return res.status(400).json({ error: 'Invalid appointment ID' });
+    }
+    
+    const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ error: 'Appointment not found' });
     }

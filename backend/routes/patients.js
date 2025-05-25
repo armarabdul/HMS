@@ -1,9 +1,15 @@
-// routes/patients.js
+// routes/patients.js - Fixed with proper parameter handling
 const express = require('express');
 const { body, validationResult, param, query } = require('express-validator');
 const Patient = require('../models/Patient');
 
 const router = express.Router();
+
+// Helper function to safely parse integers
+const safeParseInt = (value, defaultValue = 0) => {
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : Math.max(0, parsed);
+};
 
 // Validation middleware
 const validatePatient = [
@@ -33,6 +39,12 @@ const validateId = [
   param('id').isInt({ min: 1 }).withMessage('ID must be a positive integer')
 ];
 
+const validateQueryParams = [
+  query('search').optional().trim().isLength({ max: 100 }),
+  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('offset').optional().isInt({ min: 0 })
+];
+
 // Error handling middleware
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -46,16 +58,24 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 // GET /api/patients - Get all patients with optional search and pagination
-router.get('/', [
-  query('search').optional().trim().isLength({ max: 100 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
-  query('offset').optional().isInt({ min: 0 }).toInt()
-], handleValidationErrors, async (req, res) => {
+router.get('/', validateQueryParams, (req, res, next) => {
+  // Skip validation errors for query params, just sanitize them
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Query validation warnings:', errors.array());
+  }
+  next();
+}, async (req, res) => {
   try {
-    const { search, limit = 50, offset = 0 } = req.query;
+    // Safely parse query parameters with defaults
+    const search = req.query.search ? String(req.query.search).trim() : '';
+    const limit = safeParseInt(req.query.limit, 50);
+    const offset = safeParseInt(req.query.offset, 0);
+    
+    console.log('Fetching patients with params:', { search, limit, offset });
     
     let patients;
-    if (search) {
+    if (search && search.length > 0) {
       patients = await Patient.search(search, limit);
     } else {
       patients = await Patient.findAll(limit, offset);
@@ -100,7 +120,15 @@ router.get('/stats', async (req, res) => {
 // GET /api/patients/:id - Get patient by ID
 router.get('/:id', validateId, handleValidationErrors, async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    const patientId = safeParseInt(req.params.id, 0);
+    
+    if (patientId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid patient ID'
+      });
+    }
+    
+    const patient = await Patient.findById(patientId);
     
     if (!patient) {
       return res.status(404).json({
@@ -124,7 +152,15 @@ router.get('/:id', validateId, handleValidationErrors, async (req, res) => {
 // GET /api/patients/:id/appointments - Get patient's appointments
 router.get('/:id/appointments', validateId, handleValidationErrors, async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    const patientId = safeParseInt(req.params.id, 0);
+    
+    if (patientId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid patient ID'
+      });
+    }
+    
+    const patient = await Patient.findById(patientId);
     
     if (!patient) {
       return res.status(404).json({
@@ -177,7 +213,15 @@ router.post('/', validatePatient, handleValidationErrors, async (req, res) => {
 // PUT /api/patients/:id - Update patient
 router.put('/:id', [...validateId, ...validatePatient], handleValidationErrors, async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    const patientId = safeParseInt(req.params.id, 0);
+    
+    if (patientId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid patient ID'
+      });
+    }
+    
+    const patient = await Patient.findById(patientId);
     
     if (!patient) {
       return res.status(404).json({
@@ -212,7 +256,15 @@ router.put('/:id', [...validateId, ...validatePatient], handleValidationErrors, 
 // DELETE /api/patients/:id - Delete patient
 router.delete('/:id', validateId, handleValidationErrors, async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    const patientId = safeParseInt(req.params.id, 0);
+    
+    if (patientId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid patient ID'
+      });
+    }
+    
+    const patient = await Patient.findById(patientId);
     
     if (!patient) {
       return res.status(404).json({

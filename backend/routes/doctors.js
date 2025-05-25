@@ -1,8 +1,15 @@
+// routes/doctors.js - Fixed with proper parameter handling
 const express = require('express');
 const { body, validationResult, param } = require('express-validator');
 const Doctor = require('../models/Doctor');
 
 const router = express.Router();
+
+// Helper function to safely parse integers
+const safeParseInt = (value, defaultValue = 0) => {
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : Math.max(0, parsed);
+};
 
 const validateDoctor = [
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
@@ -22,10 +29,16 @@ const handleValidationErrors = (req, res, next) => {
 // GET /api/doctors
 router.get('/', async (req, res) => {
   try {
-    const { limit = 50, offset = 0 } = req.query;
-    const doctors = await Doctor.findAll(parseInt(limit), parseInt(offset));
+    // Safely parse query parameters
+    const limit = safeParseInt(req.query.limit, 50);
+    const offset = safeParseInt(req.query.offset, 0);
+    
+    console.log('Fetching doctors with params:', { limit, offset });
+    
+    const doctors = await Doctor.findAll(limit, offset);
     res.json({ success: true, data: doctors });
   } catch (error) {
+    console.error('Error fetching doctors:', error);
     res.status(500).json({ error: 'Failed to fetch doctors', message: error.message });
   }
 });
@@ -36,6 +49,7 @@ router.get('/stats', async (req, res) => {
     const stats = await Doctor.getStats();
     res.json({ success: true, data: stats });
   } catch (error) {
+    console.error('Error fetching doctor stats:', error);
     res.status(500).json({ error: 'Failed to fetch doctor stats', message: error.message });
   }
 });
@@ -43,10 +57,17 @@ router.get('/stats', async (req, res) => {
 // GET /api/doctors/:id
 router.get('/:id', async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
+    const doctorId = safeParseInt(req.params.id, 0);
+    
+    if (doctorId <= 0) {
+      return res.status(400).json({ error: 'Invalid doctor ID' });
+    }
+    
+    const doctor = await Doctor.findById(doctorId);
     if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
     res.json({ success: true, data: doctor });
   } catch (error) {
+    console.error('Error fetching doctor:', error);
     res.status(500).json({ error: 'Failed to fetch doctor', message: error.message });
   }
 });
@@ -57,6 +78,7 @@ router.post('/', validateDoctor, handleValidationErrors, async (req, res) => {
     const doctor = await Doctor.create(req.body);
     res.status(201).json({ success: true, message: 'Doctor created successfully', data: doctor });
   } catch (error) {
+    console.error('Error creating doctor:', error);
     res.status(500).json({ error: 'Failed to create doctor', message: error.message });
   }
 });
@@ -64,11 +86,18 @@ router.post('/', validateDoctor, handleValidationErrors, async (req, res) => {
 // PUT /api/doctors/:id
 router.put('/:id', validateDoctor, handleValidationErrors, async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
+    const doctorId = safeParseInt(req.params.id, 0);
+    
+    if (doctorId <= 0) {
+      return res.status(400).json({ error: 'Invalid doctor ID' });
+    }
+    
+    const doctor = await Doctor.findById(doctorId);
     if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
     const updatedDoctor = await doctor.update(req.body);
     res.json({ success: true, message: 'Doctor updated successfully', data: updatedDoctor });
   } catch (error) {
+    console.error('Error updating doctor:', error);
     res.status(500).json({ error: 'Failed to update doctor', message: error.message });
   }
 });
@@ -76,11 +105,18 @@ router.put('/:id', validateDoctor, handleValidationErrors, async (req, res) => {
 // DELETE /api/doctors/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
+    const doctorId = safeParseInt(req.params.id, 0);
+    
+    if (doctorId <= 0) {
+      return res.status(400).json({ error: 'Invalid doctor ID' });
+    }
+    
+    const doctor = await Doctor.findById(doctorId);
     if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
     await doctor.delete();
     res.json({ success: true, message: 'Doctor deleted successfully' });
   } catch (error) {
+    console.error('Error deleting doctor:', error);
     res.status(500).json({ error: 'Failed to delete doctor', message: error.message });
   }
 });

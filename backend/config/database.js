@@ -1,4 +1,4 @@
-// config/database.js - Fixed version with proper query handling
+// config/database.js - Final fix using query() instead of execute()
 const mysql = require('mysql2');
 
 // Database connection configuration
@@ -13,7 +13,7 @@ const dbConfig = {
   timeout: 60000,
   reconnect: true,
   idleTimeout: 300000,
-  multipleStatements: true,  // Enable multiple statements
+  multipleStatements: true,
   charset: 'utf8mb4',
   timezone: '+00:00'
 };
@@ -46,27 +46,69 @@ const testConnection = async () => {
   }
 };
 
-// Execute query with better error handling
+// Sanitize and validate parameters
+const sanitizeParams = (params) => {
+  if (!Array.isArray(params)) {
+    return [];
+  }
+  
+  return params.map(param => {
+    // Handle numeric parameters
+    if (typeof param === 'string' && !isNaN(param) && param !== '') {
+      const num = parseInt(param, 10);
+      return isNaN(num) ? 0 : num;
+    }
+    
+    // Handle undefined/null
+    if (param === undefined || param === null) {
+      return null;
+    }
+    
+    // Handle NaN
+    if (typeof param === 'number' && isNaN(param)) {
+      return 0;
+    }
+    
+    return param;
+  });
+};
+
+// Execute query using .query() method instead of .execute() to avoid prepared statement issues
 const executeQuery = async (query, params = []) => {
   let connection;
   try {
     connection = await promisePool.getConnection();
     
-    // Use query() for multiple statements, execute() for single prepared statements
-    if (query.includes(';') && !params.length) {
-      // Multiple statements without parameters
-      const [results] = await connection.query(query);
-      return results;
+    // Sanitize parameters
+    const sanitizedParams = sanitizeParams(params);
+    
+    console.log('Executing query:', {
+      query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+      originalParams: params,
+      sanitizedParams: sanitizedParams
+    });
+    
+    // Use .query() method for all queries to avoid prepared statement issues
+    let results;
+    
+    if (sanitizedParams.length === 0) {
+      // No parameters - use simple query
+      [results] = await connection.query(query);
     } else {
-      // Single statement or statement with parameters
-      const [results] = await connection.execute(query, params);
-      return results;
+      // With parameters - use parameterized query
+      [results] = await connection.query(query, sanitizedParams);
     }
+    
+    console.log(`✅ Query executed successfully, returned ${Array.isArray(results) ? results.length : 1} rows`);
+    return results;
+    
   } catch (error) {
     console.error('Database query error:', {
-      query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
-      params,
-      error: error.message
+      query: query.substring(0, 200),
+      originalParams: params,
+      sanitizedParams: sanitizeParams(params),
+      error: error.message,
+      code: error.code
     });
     throw error;
   } finally {
@@ -82,7 +124,15 @@ const executeTransaction = async (queries) => {
     
     const results = [];
     for (const { query, params } of queries) {
-      const [result] = await connection.execute(query, params || []);
+      const sanitizedParams = sanitizeParams(params || []);
+      let result;
+      
+      if (sanitizedParams.length === 0) {
+        [result] = await connection.query(query);
+      } else {
+        [result] = await connection.query(query, sanitizedParams);
+      }
+      
       results.push(result);
     }
     
@@ -107,7 +157,7 @@ const checkDatabase = async () => {
     const tempPool = mysql.createPool(tempConfig);
     const tempPromisePool = tempPool.promise();
     
-    const [databases] = await tempPromisePool.execute(
+    const [databases] = await tempPromisePool.query(
       'SHOW DATABASES LIKE ?', 
       [dbConfig.database]
     );
@@ -140,7 +190,7 @@ const createDatabase = async () => {
   }
 };
 
-// Initialize database tables (simplified version)
+// Initialize database tables
 const initializeDatabase = async () => {
   try {
     const dbExists = await checkDatabase();
@@ -202,7 +252,7 @@ const initializeDatabase = async () => {
     console.log('✅ Database tables initialized successfully');
     
     // Verify tables exist
-    const [tables] = await promisePool.query('SHOW TABLES');
+    const tables = await executeQuery('SHOW TABLES');
     console.log(`📋 Tables found: ${tables.map(t => Object.values(t)[0]).join(', ')}`);
     
     return true;
